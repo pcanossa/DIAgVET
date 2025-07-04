@@ -9,10 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Calm Neutral (Warm grays, muted blues, and a soft amber accent) -->
-    <!-- Application Structure Plan: The SPA uses a single-page, multi-view architecture controlled by JavaScript. An initial login screen grants access to the main application view. The layout uses a top navigation bar for a standard user experience. View switching logic has been refined to ensure strict segmentation, so only one main view (New Case or History) is ever displayed at a time, preventing content overlap. -->
-    <!-- Visualization & Content Choices: Report Info: User flow, case data entry, AI analysis display, and case history. -> Goal: Create an interactive prototype of the application blueprint. -> Viz/Presentation Method: Interactive forms for data entry, styled text blocks for AI results, a card-based list for history, and a supplemental Chart.js bar chart to visualize case frequency over time. -> Interaction: Click-based navigation to swap views, a mock API call on 'Analyze' button press with a loading state, and the ability to save new cases to a JS array and view them in the history. -> Justification: This approach translates the abstract architecture into a tangible, interactive user interface that demonstrates the core functionality and user journey. The bar chart adds a data visualization element as required. -> Library/Method: Vanilla JS for all logic and state, Tailwind CSS for styling, Chart.js for the history chart. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body { font-family: 'Inter', sans-serif; }
         .view { display: none; }
@@ -28,12 +24,10 @@
 <body class="bg-stone-50 text-stone-800">
 
     <div id="app-container">
-        <!-- TELA DE LOGIN -->
         <div id="login-view" class="view active">
             <div class="flex items-center justify-center min-h-screen bg-stone-100">
                 <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md mx-4">
                     <div class="text-center mb-4">
-                        <!-- LOGO AQUI (Substitua a URL) -->
                         <img src="https://placehold.co/250x60/ffffff/1e40af?text=DIAg+Vet&font=inter" alt="Logo DIAg Vet" class="mx-auto h-14 w-auto">
                         <p class="mt-4 text-stone-600">Acesso exclusivo para veterinários.</p>
                     </div>
@@ -69,7 +63,6 @@
             </div>
         </div>
 
-        <!-- TELA DE REGISTRO (SIMULADA) -->
         <div id="register-view" class="view">
              <div class="flex items-center justify-center min-h-screen bg-stone-100">
                 <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md mx-4">
@@ -105,18 +98,14 @@
             </div>
         </div>
 
-        <!-- TELA PRINCIPAL DA APLICAÇÃO -->
         <div id="app-view" class="view min-h-screen">
-            <!-- NAVBAR SUPERIOR -->
             <nav class="bg-sky-800 text-white shadow-lg sticky top-0 z-10">
                 <div class="max-w-7xl mx-auto px-4">
                     <div class="flex justify-between items-center h-16">
-                        <!-- Logo -->
                         <div class="flex-shrink-0">
                              <img src="https://placehold.co/150x40/0284c7/ffffff?text=DIAg+Vet&font=inter" alt="Logo DIAg Vet" class="h-8 w-auto">
                         </div>
 
-                        <!-- Menu Desktop -->
                         <div class="hidden md:flex md:items-center md:space-x-4">
                             <a href="#" class="nav-link px-3 py-2 rounded-md text-sm font-medium" data-view="new-case-view">Novo Caso</a>
                             <a href="#" class="nav-link px-3 py-2 rounded-md text-sm font-medium" data-view="history-view">Histórico</a>
@@ -126,7 +115,6 @@
                              <a href="#" id="logout-button" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-sky-700">Sair</a>
                         </div>
 
-                        <!-- Botão Menu Mobile -->
                         <div class="md:hidden flex items-center">
                             <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-sky-700 focus:outline-none">
                                 <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -138,7 +126,6 @@
                     </div>
                 </div>
 
-                <!-- Menu Mobile (dropdown) -->
                 <div id="mobile-menu" class="md:hidden hidden">
                     <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium" data-view="new-case-view">Novo Caso</a>
@@ -150,7 +137,6 @@
             
             <main class="flex-1 p-4 md:p-8 bg-stone-100">
                 <div id="main-content">
-                    <!-- VIEW: NOVO CASO -->
                     <div id="new-case-view" class="main-view">
                         <div class="max-w-4xl mx-auto">
                             <h1 class="text-2xl md:text-3xl font-bold mb-2">Novo Caso Clínico</h1>
@@ -159,6 +145,49 @@
                             <div class="p-6 md:p-8 bg-white rounded-lg shadow-md">
                                 <form id="case-form" class="space-y-6">
                                     <input type="hidden" id="case-id">
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-6 border-b border-stone-200">
+                                        <div>
+                                            <label class="text-lg font-semibold text-stone-700">Espécie</label>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <label class="flex items-center"><input type="radio" name="especie" value="Canino" class="mr-2 h-4 w-4 text-sky-600 focus:ring-sky-500 border-stone-300"> Canino</label>
+                                                <label class="flex items-center"><input type="radio" name="especie" value="Felino" class="mr-2 h-4 w-4 text-sky-600 focus:ring-sky-500 border-stone-300"> Felino</label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="text-lg font-semibold text-stone-700">Gênero</label>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <label class="flex items-center"><input type="radio" name="genero" value="M" class="mr-2 h-4 w-4 text-sky-600 focus:ring-sky-500 border-stone-300"> M</label>
+                                                <label class="flex items-center"><input type="radio" name="genero" value="F" class="mr-2 h-4 w-4 text-sky-600 focus:ring-sky-500 border-stone-300"> F</label>
+                                            </div>
+                                        </div>
+                                        <div class="lg:col-span-2">
+                                            <label for="idade" class="text-lg font-semibold text-stone-700">Idade</label>
+                                            <div class="flex items-center mt-2">
+                                                <input type="number" id="idade" min="0" class="w-full p-3 border rounded-l-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                                                <select id="idade-unidade" class="p-3 border-t border-b border-r rounded-r-md border-stone-300 bg-stone-50 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                                                    <option value="anos">Anos</option>
+                                                    <option value="meses">Meses</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="md:col-span-2 lg:col-span-4">
+                                            <label for="raca" class="text-lg font-semibold text-stone-700">Raça</label>
+                                            <input list="racas" id="raca" class="w-full p-3 mt-2 border rounded-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                                            <datalist id="racas">
+                                                <option value="SRD (Sem Raça Definida)">
+                                                <option value="Poodle">
+                                                <option value="Labrador Retriever">
+                                                <option value="Golden Retriever">
+                                                <option value="Bulldog Francês">
+                                                <option value="Shih Tzu">
+                                                <option value="Siamês">
+                                                <option value="Persa">
+                                                <option value="Maine Coon">
+                                            </datalist>
+                                        </div>
+                                    </div>
+                                    
                                     <div>
                                         <label for="anamnese" class="text-lg font-semibold text-stone-700">Anamnese</label>
                                         <p class="text-sm text-stone-500 mb-2">Histórico, queixa principal, ambiente, etc.</p>
@@ -188,7 +217,6 @@
                                 </form>
                             </div>
 
-                            <!-- ÁREA DE RESULTADOS DA IA -->
                             <div id="analysis-results" class="hidden mt-8">
                                 <h2 class="text-2xl font-bold mb-4">Resultados da Análise</h2>
                                 <div class="grid grid-cols-1 gap-6">
@@ -211,7 +239,6 @@
                         </div>
                     </div>
 
-                    <!-- VIEW: HISTÓRICO -->
                     <div id="history-view" class="main-view">
                         <div class="max-w-6xl mx-auto">
                              <h1 class="text-2xl md:text-3xl font-bold mb-2">Histórico de Casos</h1>
@@ -225,8 +252,7 @@
                              </div>
 
                              <div id="history-list" class="space-y-4">
-                                <!-- Cards do histórico serão inseridos aqui pelo JS -->
-                             </div>
+                                </div>
                         </div>
                     </div>
 
@@ -276,6 +302,11 @@ document.addEventListener('DOMContentLoaded', () => {
         { 
             id: 1, 
             date: '2025-07-01', 
+            especie: 'Canino',
+            genero: 'M',
+            idade: '8',
+            idadeUnidade: 'anos',
+            raca: 'SRD (Sem Raça Definida)',
             anamnese: 'Cão, SRD, 8 anos. Apresenta poliúria e polidipsia há 2 meses.', 
             sinaisClinicos: 'Apatia, perda de peso progressiva.', 
             exameFisico: 'Mucosas normocoradas, desidratação moderada, escore corporal 3/9.', 
@@ -297,6 +328,11 @@ document.addEventListener('DOMContentLoaded', () => {
         { 
             id: 2, 
             date: '2025-06-15', 
+            especie: 'Felino',
+            genero: 'F',
+            idade: '12',
+            idadeUnidade: 'anos',
+            raca: 'Persa',
             anamnese: 'Gato, Persa, 12 anos. Vômitos esporádicos e seletividade alimentar.', 
             sinaisClinicos: 'Pelo opaco, emagrecimento.', 
             exameFisico: 'Rins de tamanho aumentado e irregulares à palpação.', 
@@ -348,14 +384,12 @@ document.addEventListener('DOMContentLoaded', () => {
         navLinks.forEach(link => link.classList.remove('active-link'));
         document.querySelectorAll(`.nav-link[data-view="${viewName}"]`).forEach(l => l.classList.add('active-link'));
         
-        switch (viewName) {
-            case 'new-case-view':
-                switchMainView('newCase');
-                break;
-            case 'history-view':
-                renderHistory();
-                switchMainView('history');
-                break;
+        if (viewName === 'new-case-view') {
+            clearForm();
+            switchMainView('newCase');
+        } else if (viewName === 'history-view') {
+            renderHistory();
+            switchMainView('history');
         }
         
         if (!mobileMenu.classList.contains('hidden')) {
@@ -367,7 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         switchView('app');
         document.querySelector('.nav-link[data-view="new-case-view"]').click();
-        clearForm();
     }
 
     function performLogout() {
@@ -392,7 +425,10 @@ document.addEventListener('DOMContentLoaded', () => {
             itemsArray = [items];
         }
         
-        if (!Array.isArray(itemsArray)) itemsArray = [itemsArray];
+        if (!Array.isArray(itemsArray) || itemsArray.length === 0) {
+            element.innerHTML = '<li>Nenhuma sugestão baseada nos dados fornecidos.</li>';
+            return;
+        }
 
         itemsArray.forEach(item => {
             const li = document.createElement('li');
@@ -414,28 +450,57 @@ document.addEventListener('DOMContentLoaded', () => {
         analyzeButton.disabled = true;
 
         setTimeout(() => {
-            const mockResponse = {
-                hipoteseDiagnostica: [
-                    "**Hipótese Principal:** Diabetes Mellitus (devido à poliúria, polidipsia e hiperglicemia).",
-                    "**Outras Possibilidades:**",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;- Hiperadrenocorticismo (Doença de Cushing).",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;- Doença Renal Crônica.",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;- Pielonefrite (infecção renal)."
-                ],
-                examesDiferenciais: [
-                    "**Perfil Bioquímico Detalhado:**",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;- Glicemia em jejum -> Confirmar hiperglicemia.",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;- Frutosamina -> Avaliar controle glicêmico das últimas 2-3 semanas.",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;- Ureia e Creatinina -> Avaliar função renal.",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;- ALT, FA, GGT -> Avaliar função hepática.",
-                    "**Teste de Supressão com Dexametasona em Dose Baixa:** -> Diagnóstico de Hiperadrenocorticismo.",
-                    "**Urinálise completa com Urocultura e Antibiograma:** -> Investigar infecção do trato urinário (ITU) e avaliar densidade urinária.",
-                    "**Ultrassonografia Abdominal:** -> Avaliar pâncreas, fígado, adrenais e rins."
-                ]
-            };
+            // --- INÍCIO DA LÓGICA DE IA DINÂMICA ---
+            const allData = [
+                document.getElementById('anamnese').value,
+                document.getElementById('sinais-clinicos').value,
+                document.getElementById('exame-fisico').value,
+                document.getElementById('resultados-exames').value
+            ].join(' ').toLowerCase();
+
+            let hipoteses = [];
+            let exames = [];
+
+            // Regra para Diabetes
+            if (/glicemia|glicose|hiperglicemia|poliúria|polidipsia| glicosúria/.test(allData)) {
+                hipoteses.push("**Hipótese Principal:** Diabetes Mellitus (suspeita baseada em sinais clínicos e/ou hiperglicemia).");
+                exames.push("**Para confirmar Diabetes:**");
+                exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Glicemia em jejum -> Confirmar hiperglicemia persistente.");
+                exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Frutosamina -> Avaliar controle glicêmico das últimas 2-3 semanas.");
+                exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Urinálise -> Verificar presença de glicosúria e cetonúria.");
+            }
+
+            // Regra para Doença Renal
+            if (/ureia|creatinina|azotemia|renal|rins|proteinúria/.test(allData)) {
+                 hipoteses.push("**Hipótese Principal:** Doença Renal Crônica/Aguda (suspeita baseada em azotemia).");
+                 hipoteses.push("**Outras Possibilidades:** Pielonefrite, Glomerulonefrite.");
+                 exames.push("**Para avaliar Doença Renal:**");
+                 exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Ureia e Creatinina -> Monitorar a progressão da azotemia.");
+                 exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Relação Proteína/Creatinina Urinária (RPCU) -> Quantificar proteinúria, um marcador de dano renal.");
+                 exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Ultrassonografia Abdominal -> Avaliar a arquitetura renal.");
+                 exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Aferição de Pressão Arterial -> Investigar hipertensão sistêmica secundária.");
+            }
             
-            renderList(hipoteseList, JSON.stringify(mockResponse.hipoteseDiagnostica));
-            renderList(examesList, JSON.stringify(mockResponse.examesDiferenciais));
+            // Regra para Hiperadrenocorticismo
+            if (/hiperadreno|cushing|supressão com dexa|abdômen pendular|alopecia bilateral/.test(allData)) {
+                 hipoteses.push("**Hipótese Principal:** Hiperadrenocorticismo (suspeita baseada em sinais clínicos).");
+                 exames.push("**Para avaliar Hiperadrenocorticismo:**");
+                 exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Teste de Supressão com Dexametasona em Dose Baixa -> Teste de triagem padrão.");
+                 exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Relação Cortisol/Creatinina Urinária -> Teste de triagem inicial (alta sensibilidade).");
+                 exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Ultrassonografia Abdominal -> Avaliar glândulas adrenais.");
+            }
+            
+            // Adiciona exames gerais se nenhuma regra específica for acionada
+            if (exames.length === 0 && allData.trim() !== '') {
+                 exames.push("**Sugestões de Triagem Geral:**");
+                 exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Hemograma Completo -> Avaliação geral de saúde, inflamação, anemia.");
+                 exames.push("&nbsp;&nbsp;&nbsp;&nbsp;- Perfil Bioquímico Completo -> Avaliação de função orgânica (rins, fígado).");
+            }
+
+
+            renderList(hipoteseList, JSON.stringify(hipoteses));
+            renderList(examesList, JSON.stringify(exames));
+            // --- FIM DA LÓGICA DE IA DINÂMICA ---
 
             analysisResults.classList.remove('hidden');
             analyzeButton.innerHTML = 'Analisar';
@@ -449,6 +514,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const examesItems = Array.from(examesList.querySelectorAll('li')).map(li => li.innerHTML);
 
         const caseData = {
+            especie: document.querySelector('input[name="especie"]:checked')?.value,
+            genero: document.querySelector('input[name="genero"]:checked')?.value,
+            idade: document.getElementById('idade').value,
+            idadeUnidade: document.getElementById('idade-unidade').value,
+            raca: document.getElementById('raca').value,
             anamnese: document.getElementById('anamnese').value,
             sinaisClinicos: document.getElementById('sinais-clinicos').value,
             exameFisico: document.getElementById('exame-fisico').value,
@@ -484,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.className = 'p-4 bg-white rounded-lg shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4 transition-shadow hover:shadow-lg';
             card.innerHTML = `
                 <div class="flex-1">
-                    <p class="font-bold text-sky-800">Caso #${c.id}</p>
+                    <p class="font-bold text-sky-800">Caso #${c.id} - ${c.raca || 'SRD'}</p>
                     <p class="text-sm text-stone-600">${new Date(c.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                     <p class="text-sm text-stone-500 mt-1 truncate max-w-full">Queixa: ${c.anamnese}</p>
                 </div>
@@ -506,20 +576,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadCaseIntoForm(id) {
         const caseData = mockHistory.find(c => c.id === id);
         if (caseData) {
-            // 1. Navega para a view do formulário
             switchMainView('newCase');
             navLinks.forEach(link => link.classList.remove('active-link'));
             document.querySelectorAll(`.nav-link[data-view="new-case-view"]`).forEach(l => l.classList.add('active-link'));
             
-            // 2. Popula o formulário com os dados do caso
+            clearForm();
+
             currentCaseId = id;
             document.getElementById('case-id').value = caseData.id;
+            
+            if(caseData.especie) document.querySelector(`input[name="especie"][value="${caseData.especie}"]`).checked = true;
+            if(caseData.genero) document.querySelector(`input[name="genero"][value="${caseData.genero}"]`).checked = true;
+            document.getElementById('idade').value = caseData.idade;
+            document.getElementById('idade-unidade').value = caseData.idadeUnidade;
+            document.getElementById('raca').value = caseData.raca;
+            
             document.getElementById('anamnese').value = caseData.anamnese;
             document.getElementById('sinais-clinicos').value = caseData.sinaisClinicos;
             document.getElementById('exame-fisico').value = caseData.exameFisico;
             document.getElementById('resultados-exames').value = caseData.resultadosExames;
             
-            // 3. Renderiza as listas de hipóteses e exames
             renderList(hipoteseList, caseData.hipoteseDiagnostica);
             renderList(examesList, caseData.examesDiferenciais);
             analysisResults.classList.remove('hidden');
