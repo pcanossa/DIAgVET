@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIAg Vet | Protótipo Interativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutral (Warm grays, muted blues, and a soft amber accent) -->
+    <!-- Application Structure Plan: The SPA uses a single-page, multi-view architecture controlled by JavaScript. An initial login screen grants access to the main application view. The layout uses a top navigation bar for a standard user experience. View switching logic has been refined to ensure strict segmentation, so only one main view (New Case or History) is ever displayed at a time, preventing content overlap. -->
+    <!-- Visualization & Content Choices: Report Info: User flow, case data entry, AI analysis display, and case history. -> Goal: Create an interactive prototype of the application blueprint. -> Viz/Presentation Method: Interactive forms for data entry, styled text blocks for AI results, a card-based list for history, and a supplemental Chart.js bar chart to visualize case frequency over time. -> Interaction: Click-based navigation to swap views, a mock API call on 'Analyze' button press with a loading state, and the ability to save new cases to a JS array and view them in the history. -> Justification: This approach translates the abstract architecture into a tangible, interactive user interface that demonstrates the core functionality and user journey. The bar chart adds a data visualization element as required. -> Library/Method: Vanilla JS for all logic and state, Tailwind CSS for styling, Chart.js for the history chart. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .view { display: none; }
+        .view.active { display: block; }
+        .main-view { display: none; }
+        .main-view.active { display: block; }
+        .app-view.active { display: flex; flex-direction: column; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 300px; max-height: 40vh; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        .nav-link.active-link { background-color: #0369a1; } /* Cor para o link ativo */
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800">
+
+    <div id="app-container">
+        <!-- TELA DE LOGIN -->
+        <div id="login-view" class="view active">
+            <div class="flex items-center justify-center min-h-screen bg-stone-100">
+                <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md mx-4">
+                    <div class="text-center mb-4">
+                        <!-- LOGO AQUI (Substitua a URL) -->
+                        <img src="https://placehold.co/250x60/ffffff/1e40af?text=DIAg+Vet&font=inter" alt="Logo DIAg Vet" class="mx-auto h-14 w-auto">
+                        <p class="mt-4 text-stone-600">Acesso exclusivo para veterinários.</p>
+                    </div>
+                    
+                    <form id="login-form" class="space-y-6">
+                        <div>
+                            <label for="email" class="text-sm font-medium text-stone-700">Email</label>
+                            <input type="email" id="email" value="vet@example.com" class="w-full px-3 py-2 mt-1 border rounded-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500" required>
+                        </div>
+                        <div>
+                            <label for="password" class="text-sm font-medium text-stone-700">Senha</label>
+                            <input type="password" id="password" value="password" class="w-full px-3 py-2 mt-1 border rounded-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500" required>
+                        </div>
+                        <button type="submit" class="w-full py-2 font-semibold text-white transition-colors rounded-md bg-sky-700 hover:bg-sky-800">Entrar</button>
+                    </form>
+
+                    <div class="relative flex items-center justify-center">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-stone-300"></div>
+                        </div>
+                        <div class="relative px-2 text-sm bg-white text-stone-500">Ou continue com</div>
+                    </div>
+
+                    <button class="w-full py-2 font-medium text-stone-700 border border-stone-300 rounded-md hover:bg-stone-100 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16"><path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/></svg>
+                        Google
+                    </button>
+
+                    <p class="text-sm text-center text-stone-600">
+                        Não tem uma conta? <a href="#" id="go-to-register" class="font-medium text-sky-600 hover:underline">Registre-se</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA DE REGISTRO (SIMULADA) -->
+        <div id="register-view" class="view">
+             <div class="flex items-center justify-center min-h-screen bg-stone-100">
+                <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md mx-4">
+                    <div class="text-center">
+                        <h1 class="text-3xl font-bold text-sky-800">Criar Conta</h1>
+                        <p class="mt-2 text-stone-600">Forneça seus dados para validação.</p>
+                    </div>
+                    
+                    <form class="space-y-4">
+                         <div>
+                            <label for="reg-name" class="text-sm font-medium text-stone-700">Nome Completo</label>
+                            <input type="text" id="reg-name" class="w-full px-3 py-2 mt-1 border rounded-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500" required>
+                        </div>
+                        <div>
+                            <label for="reg-email" class="text-sm font-medium text-stone-700">Email</label>
+                            <input type="email" id="reg-email" class="w-full px-3 py-2 mt-1 border rounded-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500" required>
+                        </div>
+                        <div>
+                            <label for="reg-crmv" class="text-sm font-medium text-stone-700">CRMV (UF-00000)</label>
+                            <input type="text" id="reg-crmv" class="w-full px-3 py-2 mt-1 border rounded-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500" required>
+                        </div>
+                        <div>
+                           <label for="reg-doc" class="text-sm font-medium text-stone-700">Documento Profissional</label>
+                           <input type="file" id="reg-doc" class="w-full px-3 py-2 mt-1 text-sm border rounded-md text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"/>
+                        </div>
+                        <button type="submit" class="w-full py-2 font-semibold text-white transition-colors rounded-md bg-sky-700 hover:bg-sky-800">Solicitar Registro</button>
+                    </form>
+
+                    <p class="text-sm text-center text-stone-600">
+                        Já tem uma conta? <a href="#" id="go-to-login" class="font-medium text-sky-600 hover:underline">Faça Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA PRINCIPAL DA APLICAÇÃO -->
+        <div id="app-view" class="view min-h-screen">
+            <!-- NAVBAR SUPERIOR -->
+            <nav class="bg-sky-800 text-white shadow-lg sticky top-0 z-10">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex justify-between items-center h-16">
+                        <!-- Logo -->
+                        <div class="flex-shrink-0">
+                             <img src="https://placehold.co/150x40/0284c7/ffffff?text=DIAg+Vet&font=inter" alt="Logo DIAg Vet" class="h-8 w-auto">
+                        </div>
+
+                        <!-- Menu Desktop -->
+                        <div class="hidden md:flex md:items-center md:space-x-4">
+                            <a href="#" class="nav-link px-3 py-2 rounded-md text-sm font-medium" data-view="new-case-view">Novo Caso</a>
+                            <a href="#" class="nav-link px-3 py-2 rounded-md text-sm font-medium" data-view="history-view">Histórico</a>
+                        </div>
+
+                        <div class="hidden md:block">
+                             <a href="#" id="logout-button" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-sky-700">Sair</a>
+                        </div>
+
+                        <!-- Botão Menu Mobile -->
+                        <div class="md:hidden flex items-center">
+                            <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-sky-700 focus:outline-none">
+                                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                    <path id="menu-open-icon" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    <path id="menu-close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu Mobile (dropdown) -->
+                <div id="mobile-menu" class="md:hidden hidden">
+                    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                        <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium" data-view="new-case-view">Novo Caso</a>
+                        <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium" data-view="history-view">Histórico</a>
+                        <a href="#" id="mobile-logout-button" class="nav-link block px-3 py-2 rounded-md text-base font-medium">Sair</a>
+                    </div>
+                </div>
+            </nav>
+            
+            <main class="flex-1 p-4 md:p-8 bg-stone-100">
+                <div id="main-content">
+                    <!-- VIEW: NOVO CASO -->
+                    <div id="new-case-view" class="main-view">
+                        <div class="max-w-4xl mx-auto">
+                            <h1 class="text-2xl md:text-3xl font-bold mb-2">Novo Caso Clínico</h1>
+                            <p class="text-stone-600 mb-6">Insira as informações do paciente para receber uma análise.</p>
+                            
+                            <div class="p-6 md:p-8 bg-white rounded-lg shadow-md">
+                                <form id="case-form" class="space-y-6">
+                                    <input type="hidden" id="case-id">
+                                    <div>
+                                        <label for="anamnese" class="text-lg font-semibold text-stone-700">Anamnese</label>
+                                        <p class="text-sm text-stone-500 mb-2">Histórico, queixa principal, ambiente, etc.</p>
+                                        <textarea id="anamnese" rows="5" class="w-full p-3 border rounded-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500"></textarea>
+                                    </div>
+                                     <div>
+                                        <label for="sinais-clinicos" class="text-lg font-semibold text-stone-700">Sinais Clínicos</label>
+                                        <p class="text-sm text-stone-500 mb-2">Sinais observados e relatados.</p>
+                                        <textarea id="sinais-clinicos" rows="5" class="w-full p-3 border rounded-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500"></textarea>
+                                    </div>
+                                     <div>
+                                        <label for="exame-fisico" class="text-lg font-semibold text-stone-700">Exame Físico</label>
+                                        <p class="text-sm text-stone-500 mb-2">Achados do exame físico.</p>
+                                        <textarea id="exame-fisico" rows="5" class="w-full p-3 border rounded-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500"></textarea>
+                                    </div>
+                                    <div>
+                                        <label for="resultados-exames" class="text-lg font-semibold text-stone-700">Resultados de Exames</label>
+                                        <p class="text-sm text-stone-500 mb-2">Resultados já realizados.</p>
+                                        <textarea id="resultados-exames" rows="5" class="w-full p-3 border rounded-md border-stone-300 focus:outline-none focus:ring-1 focus:ring-sky-500"></textarea>
+                                    </div>
+                                    <div class="flex items-center justify-end space-x-4 pt-4">
+                                        <button type="button" id="clear-form-button" class="px-6 py-2 font-semibold text-stone-700 bg-stone-200 rounded-md hover:bg-stone-300">Limpar</button>
+                                        <button type="submit" id="analyze-button" class="px-6 py-2 font-semibold text-white bg-amber-500 rounded-md hover:bg-amber-600">
+                                            Analisar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- ÁREA DE RESULTADOS DA IA -->
+                            <div id="analysis-results" class="hidden mt-8">
+                                <h2 class="text-2xl font-bold mb-4">Resultados da Análise</h2>
+                                <div class="grid grid-cols-1 gap-6">
+                                    <div class="p-6 bg-white rounded-lg shadow-md">
+                                        <h3 class="text-xl font-semibold mb-3 text-sky-800">Hipóteses Diagnósticas</h3>
+                                        <ul id="hipotese-list" class="text-stone-600 leading-relaxed space-y-3"></ul>
+                                    </div>
+                                     <div class="p-6 bg-white rounded-lg shadow-md">
+                                        <h3 class="text-xl font-semibold mb-3 text-sky-800">Sugestão de Exames Diferenciais</h3>
+                                        <ul id="exames-list" class="text-stone-600 leading-relaxed space-y-3"></ul>
+                                    </div>
+                                </div>
+                                 <div class="flex justify-end mt-6">
+                                     <button id="save-case-button" class="w-full md:w-auto px-6 py-2 font-semibold text-white bg-sky-700 rounded-md hover:bg-sky-800">
+                                         Salvar Caso no Histórico
+                                     </button>
+                                 </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- VIEW: HISTÓRICO -->
+                    <div id="history-view" class="main-view">
+                        <div class="max-w-6xl mx-auto">
+                             <h1 class="text-2xl md:text-3xl font-bold mb-2">Histórico de Casos</h1>
+                             <p class="text-stone-600 mb-6">Consulte, revise e atualize os casos clínicos.</p>
+                             
+                             <div class="p-6 md:p-8 mb-8 bg-white rounded-lg shadow-md">
+                                 <h2 class="text-xl font-semibold mb-4">Atividade Recente</h2>
+                                 <div class="chart-container">
+                                    <canvas id="historyChart"></canvas>
+                                 </div>
+                             </div>
+
+                             <div id="history-list" class="space-y-4">
+                                <!-- Cards do histórico serão inseridos aqui pelo JS -->
+                             </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const views = {
+        login: document.getElementById('login-view'),
+        register: document.getElementById('register-view'),
+        app: document.getElementById('app-view')
+    };
+    
+    const mainViews = {
+        newCase: document.getElementById('new-case-view'),
+        history: document.getElementById('history-view')
+    };
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const loginForm = document.getElementById('login-form');
+    const goToRegisterLink = document.getElementById('go-to-register');
+    const goToLoginLink = document.getElementById('go-to-login');
+    const logoutButton = document.getElementById('logout-button');
+    const mobileLogoutButton = document.getElementById('mobile-logout-button');
+    const caseForm = document.getElementById('case-form');
+    const analyzeButton = document.getElementById('analyze-button');
+    const analysisResults = document.getElementById('analysis-results');
+    const hipoteseList = document.getElementById('hipotese-list');
+    const examesList = document.getElementById('exames-list');
+    const saveCaseButton = document.getElementById('save-case-button');
+    const clearFormButton = document.getElementById('clear-form-button');
+    const historyList = document.getElementById('history-list');
+
+    // Mobile menu elements
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuOpenIcon = document.getElementById('menu-open-icon');
+    const menuCloseIcon = document.getElementById('menu-close-icon');
+
+    let currentCaseId = null;
+    let mockHistory = [
+        { 
+            id: 1, 
+            date: '2025-07-01', 
+            anamnese: 'Cão, SRD, 8 anos. Apresenta poliúria e polidipsia há 2 meses.', 
+            sinaisClinicos: 'Apatia, perda de peso progressiva.', 
+            exameFisico: 'Mucosas normocoradas, desidratação moderada, escore corporal 3/9.', 
+            resultadosExames: 'Glicemia de jejum: 350 mg/dL.', 
+            hipoteseDiagnostica: JSON.stringify([
+                "**Hipótese Principal:** Diabetes Mellitus (devido à poliúria, polidipsia e hiperglicemia).",
+                "**Outras Possibilidades:**",
+                "&nbsp;&nbsp;&nbsp;&nbsp;- Hiperadrenocorticismo (Doença de Cushing).",
+                "&nbsp;&nbsp;&nbsp;&nbsp;- Doença Renal Crônica."
+            ]), 
+            examesDiferenciais: JSON.stringify([
+                "**Perfil Bioquímico Detalhado:**",
+                "&nbsp;&nbsp;&nbsp;&nbsp;- Glicemia em jejum -> Confirmar hiperglicemia.",
+                "&nbsp;&nbsp;&nbsp;&nbsp;- Frutosamina -> Avaliar controle glicêmico das últimas 2-3 semanas.",
+                "&nbsp;&nbsp;&nbsp;&nbsp;- Ureia e Creatinina -> Avaliar função renal.",
+                "**Teste de Supressão com Dexametasona:** -> Investigar Hiperadrenocorticismo."
+            ]) 
+        },
+        { 
+            id: 2, 
+            date: '2025-06-15', 
+            anamnese: 'Gato, Persa, 12 anos. Vômitos esporádicos e seletividade alimentar.', 
+            sinaisClinicos: 'Pelo opaco, emagrecimento.', 
+            exameFisico: 'Rins de tamanho aumentado e irregulares à palpação.', 
+            resultadosExames: 'Ureia: 150 mg/dL, Creatinina: 4.5 mg/dL.', 
+            hipoteseDiagnostica: JSON.stringify([
+                "**Hipótese Principal:** Doença Renal Crônica (devido aos achados na palpação e azotemia).",
+                "**Outras Possibilidades:**",
+                "&nbsp;&nbsp;&nbsp;&nbsp;- Pielonefrite.",
+                "&nbsp;&nbsp;&nbsp;&nbsp;- Linfoma renal."
+            ]), 
+            examesDiferenciais: JSON.stringify([
+                "**Perfil Bioquímico e Urinálise:**",
+                "&nbsp;&nbsp;&nbsp;&nbsp;- Ureia e Creatinina -> Monitorar a progressão da azotemia.",
+                "&nbsp;&nbsp;&nbsp;&nbsp;- Fósforo -> Avaliar hiperfosfatemia secundária.",
+                "&nbsp;&nbsp;&nbsp;&nbsp;- Relação Proteína/Creatinina Urinária (RPCU) -> Quantificar proteinúria.",
+                "**Ultrassonografia Abdominal:** -> Avaliar a arquitetura renal, procurar por sinais de hidronefrose ou massas.",
+                "**Aferição de Pressão Arterial:** -> Investigar hipertensão sistêmica, comum em pacientes renais."
+            ])
+        }
+    ];
+    let nextId = 3;
+    let historyChart = null;
+
+    function switchView(viewName) {
+        Object.values(views).forEach(v => v.classList.remove('active'));
+        if (views[viewName]) {
+            views[viewName].classList.add('active');
+        }
+    }
+
+    function switchMainView(viewName) {
+        Object.values(mainViews).forEach(v => v.classList.remove('active'));
+        if (mainViews[viewName]) {
+            mainViews[viewName].classList.add('active');
+        }
+    }
+    
+    function toggleMobileMenu() {
+        mobileMenu.classList.toggle('hidden');
+        menuOpenIcon.classList.toggle('hidden');
+        menuCloseIcon.classList.toggle('hidden');
+    }
+
+    function handleNavigation(e) {
+        e.preventDefault();
+        
+        const viewName = e.currentTarget.dataset.view;
+        
+        navLinks.forEach(link => link.classList.remove('active-link'));
+        document.querySelectorAll(`.nav-link[data-view="${viewName}"]`).forEach(l => l.classList.add('active-link'));
+        
+        switch (viewName) {
+            case 'new-case-view':
+                switchMainView('newCase');
+                break;
+            case 'history-view':
+                renderHistory();
+                switchMainView('history');
+                break;
+        }
+        
+        if (!mobileMenu.classList.contains('hidden')) {
+            toggleMobileMenu();
+        }
+    }
+    
+    function performLogin(e) {
+        e.preventDefault();
+        switchView('app');
+        document.querySelector('.nav-link[data-view="new-case-view"]').click();
+        clearForm();
+    }
+
+    function performLogout() {
+        switchView('login');
+    }
+
+    function clearForm() {
+        caseForm.reset();
+        currentCaseId = null;
+        document.getElementById('case-id').value = '';
+        analysisResults.classList.add('hidden');
+        analyzeButton.innerHTML = 'Analisar';
+        analyzeButton.disabled = false;
+    }
+    
+    function renderList(element, items) {
+        element.innerHTML = '';
+        let itemsArray = [];
+        try {
+            itemsArray = JSON.parse(items);
+        } catch(e) {
+            itemsArray = [items];
+        }
+        
+        if (!Array.isArray(itemsArray)) itemsArray = [itemsArray];
+
+        itemsArray.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = item.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-stone-800">$1</strong>')
+                               .replace(/->(.*?)$/g, '<span class="text-sm text-stone-500 block ml-4"> &rarr; $1</span>');
+            element.appendChild(li);
+        });
+    }
+
+    function simulateAnalysis(e) {
+        e.preventDefault();
+        
+        analyzeButton.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Analisando...`;
+        analyzeButton.disabled = true;
+
+        setTimeout(() => {
+            const mockResponse = {
+                hipoteseDiagnostica: [
+                    "**Hipótese Principal:** Diabetes Mellitus (devido à poliúria, polidipsia e hiperglicemia).",
+                    "**Outras Possibilidades:**",
+                    "&nbsp;&nbsp;&nbsp;&nbsp;- Hiperadrenocorticismo (Doença de Cushing).",
+                    "&nbsp;&nbsp;&nbsp;&nbsp;- Doença Renal Crônica.",
+                    "&nbsp;&nbsp;&nbsp;&nbsp;- Pielonefrite (infecção renal)."
+                ],
+                examesDiferenciais: [
+                    "**Perfil Bioquímico Detalhado:**",
+                    "&nbsp;&nbsp;&nbsp;&nbsp;- Glicemia em jejum -> Confirmar hiperglicemia.",
+                    "&nbsp;&nbsp;&nbsp;&nbsp;- Frutosamina -> Avaliar controle glicêmico das últimas 2-3 semanas.",
+                    "&nbsp;&nbsp;&nbsp;&nbsp;- Ureia e Creatinina -> Avaliar função renal.",
+                    "&nbsp;&nbsp;&nbsp;&nbsp;- ALT, FA, GGT -> Avaliar função hepática.",
+                    "**Teste de Supressão com Dexametasona em Dose Baixa:** -> Diagnóstico de Hiperadrenocorticismo.",
+                    "**Urinálise completa com Urocultura e Antibiograma:** -> Investigar infecção do trato urinário (ITU) e avaliar densidade urinária.",
+                    "**Ultrassonografia Abdominal:** -> Avaliar pâncreas, fígado, adrenais e rins."
+                ]
+            };
+            
+            renderList(hipoteseList, JSON.stringify(mockResponse.hipoteseDiagnostica));
+            renderList(examesList, JSON.stringify(mockResponse.examesDiferenciais));
+
+            analysisResults.classList.remove('hidden');
+            analyzeButton.innerHTML = 'Analisar';
+            analyzeButton.disabled = false;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }, 1500);
+    }
+    
+    function saveCase() {
+        const hipoteseItems = Array.from(hipoteseList.querySelectorAll('li')).map(li => li.innerHTML);
+        const examesItems = Array.from(examesList.querySelectorAll('li')).map(li => li.innerHTML);
+
+        const caseData = {
+            anamnese: document.getElementById('anamnese').value,
+            sinaisClinicos: document.getElementById('sinais-clinicos').value,
+            exameFisico: document.getElementById('exame-fisico').value,
+            resultadosExames: document.getElementById('resultados-exames').value,
+            hipoteseDiagnostica: JSON.stringify(hipoteseItems),
+            examesDiferenciais: JSON.stringify(examesItems)
+        };
+
+        if (currentCaseId) {
+            const index = mockHistory.findIndex(c => c.id === currentCaseId);
+            if (index !== -1) {
+                mockHistory[index] = { ...mockHistory[index], ...caseData };
+            }
+        } else {
+            caseData.id = nextId++;
+            caseData.date = new Date().toISOString().split('T')[0];
+            mockHistory.push(caseData);
+        }
+        
+        alert('Caso salvo com sucesso!');
+        document.querySelector('.nav-link[data-view="history-view"]').click();
+    }
+    
+    function renderHistory() {
+        historyList.innerHTML = '';
+        if (mockHistory.length === 0) {
+            historyList.innerHTML = `<p class="text-center text-stone-500">Nenhum caso registrado.</p>`;
+            return;
+        }
+
+        mockHistory.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(c => {
+            const card = document.createElement('div');
+            card.className = 'p-4 bg-white rounded-lg shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4 transition-shadow hover:shadow-lg';
+            card.innerHTML = `
+                <div class="flex-1">
+                    <p class="font-bold text-sky-800">Caso #${c.id}</p>
+                    <p class="text-sm text-stone-600">${new Date(c.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                    <p class="text-sm text-stone-500 mt-1 truncate max-w-full">Queixa: ${c.anamnese}</p>
+                </div>
+                <button data-id="${c.id}" class="view-case-button w-full md:w-auto px-4 py-2 text-sm font-semibold text-white bg-sky-700 rounded-md hover:bg-sky-800">Ver/Editar</button>
+            `;
+            historyList.appendChild(card);
+        });
+
+        document.querySelectorAll('.view-case-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const id = parseInt(e.currentTarget.dataset.id);
+                loadCaseIntoForm(id);
+            });
+        });
+        
+        renderHistoryChart();
+    }
+
+    function loadCaseIntoForm(id) {
+        const caseData = mockHistory.find(c => c.id === id);
+        if (caseData) {
+            // 1. Navega para a view do formulário
+            switchMainView('newCase');
+            navLinks.forEach(link => link.classList.remove('active-link'));
+            document.querySelectorAll(`.nav-link[data-view="new-case-view"]`).forEach(l => l.classList.add('active-link'));
+            
+            // 2. Popula o formulário com os dados do caso
+            currentCaseId = id;
+            document.getElementById('case-id').value = caseData.id;
+            document.getElementById('anamnese').value = caseData.anamnese;
+            document.getElementById('sinais-clinicos').value = caseData.sinaisClinicos;
+            document.getElementById('exame-fisico').value = caseData.exameFisico;
+            document.getElementById('resultados-exames').value = caseData.resultadosExames;
+            
+            // 3. Renderiza as listas de hipóteses e exames
+            renderList(hipoteseList, caseData.hipoteseDiagnostica);
+            renderList(examesList, caseData.examesDiferenciais);
+            analysisResults.classList.remove('hidden');
+        }
+    }
+
+    function renderHistoryChart() {
+        const ctx = document.getElementById('historyChart').getContext('2d');
+        const caseCounts = mockHistory.reduce((acc, c) => {
+            const month = new Date(c.date).toLocaleString('pt-BR', { month: 'short', year: 'numeric' });
+            acc[month] = (acc[month] || 0) + 1;
+            return acc;
+        }, {});
+
+        const labels = Object.keys(caseCounts).sort((a,b) => new Date('01 ' + a.replace(' de','')) - new Date('01 ' + b.replace(' de','')));
+        const data = labels.map(label => caseCounts[label]);
+
+        if(historyChart) {
+            historyChart.destroy();
+        }
+
+        historyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Nº de Casos Registrados',
+                    data: data,
+                    backgroundColor: 'rgba(56, 189, 248, 0.6)',
+                    borderColor: 'rgba(2, 132, 199, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                           stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#075985',
+                    }
+                }
+            }
+        });
+    }
+
+    // Event Listeners
+    loginForm.addEventListener('submit', performLogin);
+    logoutButton.addEventListener('click', performLogout);
+    mobileLogoutButton.addEventListener('click', performLogout);
+    goToRegisterLink.addEventListener('click', (e) => { e.preventDefault(); switchView('register'); });
+    goToLoginLink.addEventListener('click', (e) => { e.preventDefault(); switchView('login'); });
+    navLinks.forEach(link => link.addEventListener('click', handleNavigation));
+    caseForm.addEventListener('submit', simulateAnalysis);
+    saveCaseButton.addEventListener('click', saveCase);
+    clearFormButton.addEventListener('click', clearForm);
+
+    // Mobile Menu Listener
+    mobileMenuButton.addEventListener('click', toggleMobileMenu);
+
+});
+</script>
+
+</body>
+</html>
